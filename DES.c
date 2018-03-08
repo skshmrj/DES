@@ -12,7 +12,6 @@ int main(int argc, char **argv){
     printf("\nThis is an implementation of DES (Data Encryption Standard).");
     printf("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
 
-    char *message = malloc(sizeof(char) * 1024);
     char *key = malloc(sizeof(char) * 8);
 
     /* Opening files for reading message and key. Filenames are supplied as the command line arguments 
@@ -25,18 +24,29 @@ int main(int argc, char **argv){
             -- optind;
         }
         switch (arg){
+            case 'k':
+                if (!(file = fopen(optarg, "r"))) {
+                    perror(optarg);
+                    abort ();
+                }
+                key = read_key_from_file(file);
+                break;
             case 'm':
                 if (!(file = fopen(optarg, "r"))) {
                     perror(optarg);
                     abort ();
                 }
 
-                break;
-            case 'k':
-                if (!(file = fopen(optarg, "r"))) {
-                    perror(optarg);
-                    abort ();
-                }
+                /* Read data from file in chunks of 8 bytes */
+                long int pos=0;
+                size_t *number_of_chars_read;
+                do{
+                    fseek(file, pos, 0);
+                    char *message = read_64_bit_data_from_file(file, number_of_chars_read);
+                    pos = ftell(file);
+                    printf("%s\n", message);
+                    // TO DO : Convert the message to binary. Add padding if necessary and apply the DES algorithm
+                 }while(*number_of_chars_read==8);
                 break;
             default:
                 abort ();

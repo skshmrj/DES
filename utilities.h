@@ -52,3 +52,25 @@ char *string_to_binary(char *message){
     }
     return message_in_binary;
 }
+
+char *read_64_bit_data_from_file(FILE *file, size_t *number_of_chars_read){
+    char *buffer = malloc(sizeof(char) * 8);
+    *number_of_chars_read  = fread(buffer, 1, 8, file);
+    return buffer;
+}
+
+char *read_key_from_file(FILE *file){
+    //Get size of the file
+    fseek(file , 0 , SEEK_END);
+    long int lSize = ftell(file);
+    rewind(file);
+    char *key = malloc(sizeof(char) * lSize);
+    size_t key_length = fread(key, 1, lSize, file);
+
+    // Check if the file has a valid key i.e. a key of 8 bytes
+    if(key_length != 8){
+        fputs("Invalid key!", stderr);
+        exit (1);
+    }
+    return key;
+}
