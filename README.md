@@ -1,10 +1,9 @@
+﻿
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 This is an implementation of DES (Data Encryption Standard).
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Prerequisites: 
-1. A C compiler
+    •  A C compiler
 
 Run the program:
 1. Compile the program.
@@ -13,4 +12,4 @@ Run the program:
 
 
 Author
-Saksham Raj
+    • Saksham Raj
