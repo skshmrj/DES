@@ -46,9 +46,12 @@ char *string_to_binary(char *message){
     
     int len_message_in_binary = 64;
     char *message_in_binary = calloc(sizeof(char), len_message_in_binary);
-    for(int i=0; i<8; i++){
-        char *c = (i<strlen(message))? char_as_binary(message[i]): char_as_binary('0');
+    for(int i=0; i<strlen(message); i++){
+        char *c = char_as_binary(message[i]);
         strncat(message_in_binary, c, 8);
+    }
+    for(int i=strlen(message_in_binary); i<64; i++){
+        message_in_binary[i] = '0';
     }
     return message_in_binary;
 }

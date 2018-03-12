@@ -47,7 +47,6 @@ int main(int argc, char **argv){
                     char *message = read_64_bit_data_from_file(file, number_of_chars_read);
                     pos = ftell(file);
                     input = string_to_binary(message);
-                    output = encrypt(input, key);
                     // TO DO : Convert the message to binary. Add padding if necessary and apply the DES algorithm
                  }while(*number_of_chars_read==8);
                 break;
