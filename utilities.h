@@ -43,12 +43,15 @@ char *char_as_binary(char dec){
 }
 
 char *string_to_binary(char *message){
-    /* length of message in binary = multiple of 8 just greater/equals to message's length * number of bits in 1 byte i.e., 8 */
-    int len_message_in_binary = ceil(strlen(message)/8)*8*8;
-    char *message_in_binary = calloc(sizeof(char), len_message_in_binary+1);
+    
+    int len_message_in_binary = 64;
+    char *message_in_binary = calloc(sizeof(char), len_message_in_binary);
     for(int i=0; i<strlen(message); i++){
         char *c = char_as_binary(message[i]);
         strncat(message_in_binary, c, 8);
+    }
+    for(int i=strlen(message_in_binary); i<64; i++){
+        message_in_binary[i] = '0';
     }
     return message_in_binary;
 }
@@ -62,11 +65,10 @@ char *read_64_bit_data_from_file(FILE *file, size_t *number_of_chars_read){
 char *read_key_from_file(FILE *file){
     //Get size of the file
     fseek(file , 0 , SEEK_END);
-    long int lSize = ftell(file);
+    long int lSize = ftell(file)-1;
     rewind(file);
     char *key = malloc(sizeof(char) * lSize);
     size_t key_length = fread(key, 1, lSize, file);
-
     // Check if the file has a valid key i.e. a key of 8 bytes
     if(key_length != 8){
         fputs("Invalid key!", stderr);
