@@ -1,0 +1,12 @@
+# C files
+a.out
+a.exe
+key
+message
+output
+
+# Eclipse files
+/Debug/
+/.settings/
+/.cproject
+/.project
