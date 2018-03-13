@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-char *itoa(int i){
+char *itoarg(int i){
     int len = (int)(sizeof(char) * (i+1));
     char *a = malloc(sizeof(char) * len);
     sprintf(a, "%d", i);
@@ -27,7 +27,7 @@ char *char_as_binary(char dec){
     char *dec_as_binary = calloc(sizeof(char), 9);
     do{
         int rem = dec%2;
-        char *res = itoa(rem);
+        char *res = itoarg(rem);
         strncat(dec_as_binary, res, 1);
         dec /= 2;
     }while(dec != 0);
