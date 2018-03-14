@@ -47,14 +47,17 @@ int main(int argc, char **argv){
 
                 /* Read data from file in chunks of 8 bytes */
                 long int pos=0;
-                size_t *number_of_chars_read;
-                char *input = malloc(sizeof(char) * 64);
-                char *output = malloc(sizeof(char) * 8);
+                size_t num = 0;
+                size_t *number_of_chars_read = &num;
+                char *plain_text_message = calloc(sizeof(char), 64);
+                char *encrypted_message = calloc(sizeof(char), 64);
+                char *message = calloc(sizeof(char), 64);
                 do{
                     fseek(file, pos, 0);
-                    char *message = read_64_bit_data_from_file(file, number_of_chars_read);
+                    message = read_64_bit_data_from_file(file, number_of_chars_read);
                     pos = ftell(file);
-                    input = string_to_binary(message);
+                    plain_text_message = string_to_binary(message);
+                    encrypted_message = encrypt(key, plain_text_message);
                     // TO DO : Convert the message to binary. Add padding if necessary and apply the DES algorithm
                  }while(*number_of_chars_read==8);
                  fclose(file);

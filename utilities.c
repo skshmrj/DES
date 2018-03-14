@@ -18,7 +18,6 @@ void swap(char *a, char *b){
 }
 
 char *strrev(char *str){
-    int left = 0, right = strlen(str)-1;
     for(int left=0, right=strlen(str)-1; left<right; left++,right--){
         swap(str+left,str+right);
     }
@@ -59,8 +58,9 @@ char *string_to_binary(char *message){
 }
 
 char *read_64_bit_data_from_file(FILE *file, size_t *number_of_chars_read){
-    char *buffer = malloc(sizeof(char) * 8);
+    char *buffer = calloc(sizeof(char), 9);
     *number_of_chars_read  = fread(buffer, 1, 8, file);
+    // printf("%s\n", buffer);
     return buffer;
 }
 
