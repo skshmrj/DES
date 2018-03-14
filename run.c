@@ -24,7 +24,7 @@ int main(int argc, char **argv){
         }
         switch (arg){
             case 'g':
-                if (!(file = fopen(optarg, "w"))) {
+                if (!(file = fopen(strcat(optarg,".key"), "w"))) {
                     perror(optarg);
                     exit (1);
                 }
