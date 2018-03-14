@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
+#include "DES.h"
 
 char *itoarg(int i){
     int len = (int)(sizeof(char) * (i+1));
@@ -65,7 +67,7 @@ char *read_64_bit_data_from_file(FILE *file, size_t *number_of_chars_read){
 char *read_key_from_file(FILE *file){
     //Get size of the file
     fseek(file , 0 , SEEK_END);
-    long int lSize = ftell(file)-1;
+    long int lSize = ftell(file);
     rewind(file);
     char *key = malloc(sizeof(char) * lSize);
     size_t key_length = fread(key, 1, lSize, file);
@@ -75,4 +77,12 @@ char *read_key_from_file(FILE *file){
         exit (1);
     }
     return key;
+}
+
+void generate_key(FILE *file){
+    char *key = malloc(sizeof(char) * 8);
+    for(int i=0;i<8;i++){
+        key[i] = rand()%255;
+    }
+    fwrite(key, sizeof(char), 8, file);
 }
