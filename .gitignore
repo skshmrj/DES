@@ -1,9 +1,9 @@
 # C files
-a.out
-a.exe
-key
-message
-output
+/*.o
+/*.out
+/*.exe
+/*.key
+/*.txt
 
 # Eclipse files
 /Debug/
