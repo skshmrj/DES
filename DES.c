@@ -36,12 +36,12 @@ int key_shift_sizes[] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
 
 char *encrypt(char *key, char *input){
     char *input_permuted = calloc(sizeof(char), 64);
-    input_permuted = initial_permutation(input);
+    input_permuted = initial_permutation(input);	
     return input_permuted;
 }
 
 char *initial_permutation(char *input){
-    char *output = malloc(sizeof(char) * 64);
+    char *output = calloc(sizeof(char), 64);
     for(int i=0; i<64; i++){
         output[i] = input[initial_message_permutation[i]];
     }
