@@ -18,43 +18,42 @@ char *strrev(char *str){
 }
 
 char *char_as_binary(char dec){
-    char *dec_as_binary = calloc(sizeof(char), 8);
+    char *dec_as_binary = calloc(sizeof(char), 9);
     char *res = calloc(sizeof(char), 2);
     int len = 0;
     do{
         int rem = dec%2;
         sprintf(res, "%d", rem);
-        memcpy ( &dec_as_binary, &res, sizeof(res) );
+        strncat(dec_as_binary, res, 1);
         dec /= 2; len++;
     }while(dec != 0);
-    
     if(len<8){
         int n_padding = 8-len;
         for(int i=0; i<n_padding; i++){    
             dec_as_binary[len+i] = '0';
         }
     }
+    dec_as_binary[8] = '\0';
     return strrev(dec_as_binary);
 }
 
-char *string_to_binary(char *message, int length){
-    
-    int len_message_in_binary = 64;
-    char *message_in_binary = calloc(sizeof(char), len_message_in_binary);
-
-    for(int i=0; i<length; i++){
+char *string_to_binary(char *message){
+    char *message_in_binary = calloc(sizeof(char), BLOCK_SIZE+1);
+    for(int i=0; i<(int)strlen(message); i++){
         char *c = char_as_binary(message[i]);
         strncat(message_in_binary, c, 8);
     }
-    for(int i=length; i<64; i++){
+    message_in_binary[BLOCK_SIZE] = '\0';
+    for(int i=(int)strlen(message_in_binary); i<64; i++){
         message_in_binary[i] = '0';
     }
     return message_in_binary;
 }
 
 char *read_64_bit_data_from_file(FILE *file, size_t *number_of_chars_read){
-    char *buffer = calloc(sizeof(char),  8);
+    char *buffer = calloc(sizeof(char),  9);
     *number_of_chars_read  = fread(buffer, 1, 8, file);
+    buffer[8] = '\0';
     return buffer;
 }
 

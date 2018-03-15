@@ -51,12 +51,12 @@ int main(int argc, char **argv){
                 size_t *number_of_chars_read = &num;
                 char *plain_text_message = calloc(sizeof(char), 64);
                 char *encrypted_message = calloc(sizeof(char), 64);
-                char *message = calloc(sizeof(char), 8);
+                char *message = calloc(sizeof(char), 9);
                 do{
                     fseek(file, pos, SEEK_SET);
                     message = read_64_bit_data_from_file(file, number_of_chars_read);
                     pos = ftell(file);
-                    plain_text_message = string_to_binary(message, *number_of_chars_read);
+                    plain_text_message = string_to_binary(message);
                     encrypted_message = encrypt(key, plain_text_message);
                     free(encrypted_message);
                     // TO DO : Convert the message to binary. Add padding if necessary and apply the DES algorithm
