@@ -14,7 +14,7 @@ int main(int argc, char **argv){
     char *key = calloc(sizeof(char), 8);
 
     /* Opening files for reading message and key. Filenames are supplied as the command line arguments 
-        with '-m' flag for file having the message and -k for file having the key */
+        with '-m' flag for file having the message and -k for file having the key . Use -g flag to generate file having key. */
     int arg, prev_ind;
     FILE *file;
     while(prev_ind = optind, (arg = getopt(argc, argv, "g:m:k:")) != -1){
@@ -49,19 +49,25 @@ int main(int argc, char **argv){
                 long int pos=0;
                 size_t num = 0;
                 size_t *number_of_chars_read = &num;
-                char *plain_text_message = calloc(sizeof(char), 64);
-                char *encrypted_message = calloc(sizeof(char), 64);
-                char *message = calloc(sizeof(char), 9);
+                char *plain_text_message = calloc(sizeof(char), 64);                // Will be used for 64 bit message, having 0's and 1's
+                char *encrypted_message = calloc(sizeof(char), 64);                 // Will be used for 64 bit encrypted message
+                char *message = calloc(sizeof(char), 9);                            // Will be used for text message read from file
                 do{
                     fseek(file, pos, SEEK_SET);
                     message = read_64_bit_data_from_file(file, number_of_chars_read);
                     pos = ftell(file);
                     plain_text_message = string_to_binary(message);
                     encrypted_message = encrypt(key, plain_text_message);
-                    free(encrypted_message);
                     // TO DO : Convert the message to binary. Add padding if necessary and apply the DES algorithm
-                 }while(*number_of_chars_read==8);
-                 fclose(file);
+                }while(*number_of_chars_read==8);
+
+                /* Free allocated memory */
+                free(message);
+                free(encrypted_message);
+                free(plain_text_message);
+
+                /* Close open files */
+                fclose(file);
                 break;
             default:
                 abort ();
