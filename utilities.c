@@ -62,7 +62,7 @@ char *string_to_binary(char *message){
     message_in_binary[BLOCK_SIZE] = '\0';
     
     /* Pad with 0's to get string of length 64 */
-    for(int i=(int)strlen(message_in_binary); i<64; i++){
+    for(int i=(int)strlen(message_in_binary); i<BLOCK_SIZE; i++){
         message_in_binary[i] = '0';
     }
 
