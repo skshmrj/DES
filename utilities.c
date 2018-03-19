@@ -85,13 +85,14 @@ char *read_key_from_file(FILE *file){
     fseek(file , 0 , SEEK_END);
     long int lSize = ftell(file);
     rewind(file);
-    char *key = calloc(sizeof(char), lSize);
+    char *key = calloc(sizeof(char), lSize+1);
     size_t key_length = fread(key, 1, lSize, file);
     // Check if the file has a valid key i.e. a key of 8 bytes
     if(key_length != 8){
         fputs("Invalid key!", stderr);
         exit (1);
     }
+    key[8] = '\0';
     return key;
 }
 
@@ -102,4 +103,35 @@ void generate_key(FILE *file){
     }
     fwrite(key, sizeof(char), 8, file);
     free(key);
+}
+
+char *substr(char *str, int start_index, int end_index){
+    if (end_index >= (int)strlen(str)+1){
+        puts(str);
+        printf("length = %d, end_index = %d\n", (int)strlen(str), end_index);       
+        fputs("Array index out of bounds.", stderr);
+        exit (1);
+    }
+    char *substring = calloc(sizeof(char), (end_index-start_index+1));
+    for(int i=start_index, k=0; i<end_index; i++,k++){
+        substring[k] = str[i];
+    }
+    substring[end_index-start_index] = '\0';
+    return substring;
+}
+
+void shift_left(char *str_shifted, char *arr, int n){
+    int len = strlen(arr);
+    char *tmp = calloc(sizeof(char), n);
+    for(int i=0;i<n;i++){
+        tmp[i] = arr[i];
+    }
+    for(int i=0; i<len-n; i++){
+        str_shifted[i] = arr[i+n]; 
+    }
+    for(int i=len-n, k=0; i<len; i++, k++){
+        str_shifted[i] = tmp[k];
+    }
+    free(tmp);
+    str_shifted[len] = '\0';
 }
