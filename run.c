@@ -11,10 +11,10 @@ int main(int argc, char **argv){
     printf("\nThis is an implementation of DES (Data Encryption Standard).");
     printf("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
 
-    char *key = calloc(sizeof(char), 8);
+    char *key = calloc(sizeof(char), 9);
 
     /* Opening files for reading message and key. Filenames are supplied as the command line arguments 
-        with '-m' flag for file having the message and -k for file having the key */
+        with '-m' flag for file having the message and -k for file having the key . Use -g flag to generate file having key. */
     int arg, prev_ind;
     FILE *file;
     while(prev_ind = optind, (arg = getopt(argc, argv, "g:m:k:")) != -1){
@@ -49,23 +49,39 @@ int main(int argc, char **argv){
                 long int pos=0;
                 size_t num = 0;
                 size_t *number_of_chars_read = &num;
-                char *plain_text_message = calloc(sizeof(char), 64);
-                char *encrypted_message = calloc(sizeof(char), 64);
-                char *message = calloc(sizeof(char), 8);
+                char *plain_text_message = calloc(sizeof(char), BLOCK_SIZE+1);                // Will be used for 64 bit message, having 0's and 1's
+                char *encrypted_message = calloc(sizeof(char), BLOCK_SIZE+1);                 // Will be used for 64 bit encrypted message
+                char *message = calloc(sizeof(char), 9);                                      // Will be used for text message read from file
+                char *key_64_bit = calloc(sizeof(char), BLOCK_SIZE+1);
+                key_64_bit = string_to_binary(key);
+
+                /* Generate a set of 16 subkeys for each of the rounds */
+                sub_key_set *sub_keys = calloc(sizeof(sub_key_set), 17);
+	            generate_sub_keys(key_64_bit, sub_keys);
+                
+                /* Start encrypting data from file 8 bytes at a time */
                 do{
                     fseek(file, pos, SEEK_SET);
                     message = read_64_bit_data_from_file(file, number_of_chars_read);
                     pos = ftell(file);
-                    plain_text_message = string_to_binary(message, *number_of_chars_read);
-                    encrypted_message = encrypt(key, plain_text_message);
-                    free(encrypted_message);
+                    plain_text_message = string_to_binary(message);
+                    encrypt(encrypted_message, plain_text_message, sub_keys);
                     // TO DO : Convert the message to binary. Add padding if necessary and apply the DES algorithm
-                 }while(*number_of_chars_read==8);
-                 fclose(file);
+                }while(*number_of_chars_read==8);
+
+                /* Free allocated memory */
+                free(key_64_bit);
+                free(message);
+                free(encrypted_message);
+                free(plain_text_message);
+
+                /* Close open files */
+                fclose(file);
                 break;
             default:
                 abort ();
         }
     }
+    free(key);
     return 0;
 }

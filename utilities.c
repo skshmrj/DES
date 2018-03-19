@@ -5,12 +5,14 @@
 #include "DES.h"
 
 void swap(char *a, char *b){   
+    
     char tmp = *a;
     *a = *b;
     *b = tmp;
 }
 
 char *strrev(char *str){
+    
     for(int left=0, right=strlen(str)-1; left<right; left++,right--){
         swap(str+left,str+right);
     }
@@ -18,43 +20,63 @@ char *strrev(char *str){
 }
 
 char *char_as_binary(char dec){
-    char *dec_as_binary = calloc(sizeof(char), 8);
+    
+    char *dec_as_binary = calloc(sizeof(char), 9);
     char *res = calloc(sizeof(char), 2);
     int len = 0;
+
     do{
         int rem = dec%2;
         sprintf(res, "%d", rem);
-        memcpy ( &dec_as_binary, &res, sizeof(res) );
+        strncat(dec_as_binary, res, 1);
         dec /= 2; len++;
     }while(dec != 0);
     
+    /* Pad with 0's to get string of length 8 */
     if(len<8){
         int n_padding = 8-len;
         for(int i=0; i<n_padding; i++){    
             dec_as_binary[len+i] = '0';
         }
     }
+    /* Null terminate to make it a string */
+    dec_as_binary[8] = '\0';
+
+    /* Free allocated memory */
+    free(res);
+    
     return strrev(dec_as_binary);
 }
 
-char *string_to_binary(char *message, int length){
-    
-    int len_message_in_binary = 64;
-    char *message_in_binary = calloc(sizeof(char), len_message_in_binary);
+char *string_to_binary(char *message){
 
-    for(int i=0; i<length; i++){
-        char *c = char_as_binary(message[i]);
+    char *message_in_binary = calloc(sizeof(char), BLOCK_SIZE+1);
+    char *c = calloc(sizeof(char), 9);
+    
+    for(int i=0; i<(int)strlen(message); i++){
+        c = char_as_binary(message[i]);
         strncat(message_in_binary, c, 8);
     }
-    for(int i=length; i<64; i++){
+
+    /* Null terminate to make it a string */
+    message_in_binary[BLOCK_SIZE] = '\0';
+    
+    /* Pad with 0's to get string of length 64 */
+    for(int i=(int)strlen(message_in_binary); i<BLOCK_SIZE; i++){
         message_in_binary[i] = '0';
     }
+
+    /* Free allocated memory */
+    free(c);
+    
     return message_in_binary;
 }
 
 char *read_64_bit_data_from_file(FILE *file, size_t *number_of_chars_read){
-    char *buffer = calloc(sizeof(char),  8);
+    
+    char *buffer = calloc(sizeof(char),  9);
     *number_of_chars_read  = fread(buffer, 1, 8, file);
+    buffer[8] = '\0';
     return buffer;
 }
 
@@ -63,13 +85,14 @@ char *read_key_from_file(FILE *file){
     fseek(file , 0 , SEEK_END);
     long int lSize = ftell(file);
     rewind(file);
-    char *key = calloc(sizeof(char), lSize);
+    char *key = calloc(sizeof(char), lSize+1);
     size_t key_length = fread(key, 1, lSize, file);
     // Check if the file has a valid key i.e. a key of 8 bytes
     if(key_length != 8){
         fputs("Invalid key!", stderr);
         exit (1);
     }
+    key[8] = '\0';
     return key;
 }
 
@@ -79,4 +102,36 @@ void generate_key(FILE *file){
         key[i] = rand()%255;
     }
     fwrite(key, sizeof(char), 8, file);
+    free(key);
+}
+
+char *substr(char *str, int start_index, int end_index){
+    if (end_index >= (int)strlen(str)+1){
+        puts(str);
+        printf("length = %d, end_index = %d\n", (int)strlen(str), end_index);       
+        fputs("Array index out of bounds.", stderr);
+        exit (1);
+    }
+    char *substring = calloc(sizeof(char), (end_index-start_index+1));
+    for(int i=start_index, k=0; i<end_index; i++,k++){
+        substring[k] = str[i];
+    }
+    substring[end_index-start_index] = '\0';
+    return substring;
+}
+
+void shift_left(char *str_shifted, char *arr, int n){
+    int len = strlen(arr);
+    char *tmp = calloc(sizeof(char), n);
+    for(int i=0;i<n;i++){
+        tmp[i] = arr[i];
+    }
+    for(int i=0; i<len-n; i++){
+        str_shifted[i] = arr[i+n]; 
+    }
+    for(int i=len-n, k=0; i<len; i++, k++){
+        str_shifted[i] = tmp[k];
+    }
+    free(tmp);
+    str_shifted[len] = '\0';
 }
