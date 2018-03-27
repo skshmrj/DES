@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <math.h>
 #include "DES.h"
 
 void swap(char *a, char *b){   
@@ -134,4 +135,62 @@ void shift_left(char *str_shifted, char *arr, int n){
     }
     free(tmp);
     str_shifted[len] = '\0';
+}
+
+char *XOR(char *A, char *B){
+    int len_1 = (int)strlen(A);
+    int len_2 = (int)strlen(B);
+    /* Check if the arguments are of equal length */
+    if (len_1 != len_2){
+        fputs("Cannot do bitwise XOR. Inputs are of different lengths\n", stderr);
+        exit (1);
+    }
+
+    char *O = calloc(sizeof(char), len_1+1);
+    O[len_1] = '\0';
+    for(int i=0; i<len_1; i++){
+        O[i] = (A[i]==B[i])? '0' : '1';
+    }
+    return O;
+}
+
+int binary_to_decimal(char *binary){
+    int len = (int)strlen(binary);
+    int dec = 0;
+    for(int i=len-1, k=0; i>=0; i--, k++){
+        dec += (pow(2.0, k) * (int)(binary[i]-'0'));
+    }
+	return dec;
+}
+
+char *decimal_to_binary(int dec){
+    char *dec_as_binary = calloc(sizeof(char), 5);
+    dec_as_binary[4] = '\0';
+    char *res = calloc(sizeof(char), 2);
+    res[1] = '\0';
+    do{
+        int rem = dec%2;
+        sprintf(res, "%d", rem);
+        strcat(dec_as_binary, res);
+        dec /= 2;
+    }while(dec != 0);
+    
+    /* Null terminate to make it a string */
+    dec_as_binary[4] = '\0';
+
+    /* Free allocated memory */
+    free(res);
+
+     /* Pad with 0's to get string of length 4 */
+     int len = (int)strlen(dec_as_binary);
+    if(len<4){
+        int n_padding = 4-len;
+        for(int i=0; i<n_padding; i++){    
+            dec_as_binary[len+i] = '0';
+        }
+    }
+    
+    // printf("%s\n", dec_as_binary);
+
+    return strrev(dec_as_binary);
 }

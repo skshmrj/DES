@@ -17,3 +17,6 @@ char *read_key_from_file(FILE *file);
 void generate_key(FILE *file);
 void encrypt(char *encrypted_message, char *plain_text_message, sub_key_set *sub_keys);
 void generate_sub_keys(char *key, sub_key_set *sub_keys);
+char *XOR(char *A, char *B);
+int binary_to_decimal(char *binary);
+char *decimal_to_binary(int decimal);
