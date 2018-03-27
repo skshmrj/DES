@@ -9,6 +9,8 @@ typedef struct {
 } sub_message;
 
 char *initial_permutation(char *input);
+char *permute_sbox_output(char *input);
+char *final_permutation(char *input);
 char *PC2(char *sub_key_56_bits);
 char *key_transformation(char *key_64_bit);
 void generate_sub_keys(char *key, sub_key_set *sub_keys);
@@ -121,6 +123,15 @@ const int Sbox[8][4][16] ={
 							{ 2,  1, 14,  7,  4, 10,  8, 13, 15, 12,  9,  0,  3,  5,  6, 11},
 							}};
 
+int right_sub_message_permutation[] = { 16,  7, 20, 21,
+										29, 12, 28, 17,
+									 	1, 15, 23, 26,
+									 	5, 18, 31, 10,
+									 	2,  8, 24, 14,
+										32, 27,  3,  9,
+										19, 13, 30,  6,
+										22, 11,  4, 25 };
+
 int key_shift_sizes[] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
 
 void encrypt(char *encrypted_message, char *plain_text_message, sub_key_set *sub_keys){
@@ -129,11 +140,14 @@ void encrypt(char *encrypted_message, char *plain_text_message, sub_key_set *sub
 	
 	/* Generate a set of 16 L and R subparts from the message for each of the rounds */
     sub_message *sub_messages = calloc(sizeof(sub_key_set), 17);
-	generate_sub_messages(plain_text_message, sub_messages, sub_keys);
-	puts(sub_messages[16].L);
-	puts(sub_messages[16].R);
-	printf("\n");
-	// TO DO
+	generate_sub_messages(input_permuted, sub_messages, sub_keys);
+	
+	char *tmp = calloc(sizeof(char), BLOCK_SIZE+1);
+	tmp[BLOCK_SIZE] = '\0';
+	strncpy(tmp, sub_messages[16].R, 32);
+	strncat(tmp, sub_messages[16].L, 32);
+
+	strncpy(encrypted_message, final_permutation(tmp), 64);
 	free(input_permuted);
 }
 
@@ -143,11 +157,15 @@ void generate_sub_messages(char *message, sub_message *sub_messages, sub_key_set
 	strncpy(sub_messages[0].L, substr(message, 0, 32), 32);
 	strncpy(sub_messages[0].R, substr(message, 32, 64), 32);
 
+	char *permuted_sbox = calloc(sizeof(char), 33);
+	permuted_sbox[32] = '\0';
 	/* Proceed throught the 16 iterations to calculate L(n) and R(n). L(n) = R(n-1) and R(n) = XOR(L(n-1), f(R(n-1), sub_keys(n))) */
 	for(int i=1; i<=NUMBER_OF_ROUNDS; i++){
 		strncpy(sub_messages[i].L, sub_messages[i-1].R, 32);
-		strncpy(sub_messages[i].R, XOR(sub_messages[i-1].L, f(sub_messages[i-1].R, sub_keys[i].sub_key)), 32);		
+		permuted_sbox = permute_sbox_output(f(sub_messages[i-1].R, sub_keys[i].sub_key));
+		strncpy(sub_messages[i].R, XOR(sub_messages[i-1].L, permuted_sbox), 32);
 	}
+	free(permuted_sbox);
 }
 
 void generate_sub_keys(char *key, sub_key_set *sub_keys){
@@ -197,6 +215,16 @@ char *PC2(char *input){
     return output;
 }
 
+char *permute_sbox_output(char *input){
+	char *output = calloc(sizeof(char), 32+1);
+	for(int i=0; i<32; i++){
+		int index = right_sub_message_permutation[i]-1;
+		output[i] = input[index];
+	}
+	output[32] = '\0';
+	return output;
+}
+
 char *final_permutation(char *input){
 	char *output = calloc(sizeof(char), BLOCK_SIZE+1);
 	for(int i=0; i<BLOCK_SIZE; i++){
@@ -211,7 +239,7 @@ char *key_transformation(char *key_64_bit){
 	char *key_56_bits = calloc(sizeof(char), 57);
 	key_56_bits[56] = '\0';
 	for(int i=0;i<56; i++){
-		int index = initial_key_permutaion[i];
+		int index = initial_key_permutaion[i]-1;
 		key_56_bits[i] = key_64_bit[index];
 	}
 	return key_56_bits;
@@ -225,7 +253,6 @@ char *f(char *R, char *K){
 	char *xor = calloc(sizeof(char), 49);
 	
 	xor = XOR(message_expanded, K);
-
 	char *six_bits = calloc(sizeof(char), 7);
 	char *four_bits = calloc(sizeof(char), 5);
 	char *output = calloc(sizeof(char), 33);
@@ -260,7 +287,7 @@ char *transform_six_bits(char *six_bits, int s_box_num){
 	int row, col;
 	get_row_and_col(six_bits, &row, &col);
 	
-	int val = Sbox[s_box_num][row-1][col-1];
+	int val = Sbox[s_box_num][row][col];
 	char *four_bits = calloc(sizeof(char), 5);
 	four_bits[4] = '\0';
 	four_bits = decimal_to_binary(val);
