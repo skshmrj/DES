@@ -10,3 +10,7 @@
 /.settings/
 /.cproject
 /.project
+
+#Sublime-text files
+/*.sublime-project
+/*.sublime-workspace
